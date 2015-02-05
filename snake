@@ -52,28 +52,44 @@
 	        } 
 	        e.appendChild(row); 
 	      } 
-	    	init();
+	    	 
+	    	movement();
 	    };
 
 	     var init = function(){
 	    	 var y = document.getElementsByClassName('row');
 	    	 var body = y[snake.coordY].children[snake.coordX];
-	    	 body.style.backgroundColor = snake.color; 
+	    	 body.className += ' snake'; 
 	    }; 
+ 
+	    var tail = function(){
+	    	var curLen = document.getElementsByClassName('snake').length;
+	    	if (curLen > snake.size){
+	    		document.getElementsByClassName('snake')[0].className = 'gridsquare';
+	    	}
+	    };
+
+
+
+
 
 	    var movement = function(){
-	    	setInterval(function(){
-	    		snake.coordX +=1;
-	    		if (snake.coordX > field.width){
-	    			alert("You lose");
-	    			console.log (snake.coordX)
-	    			return;
-	    		}
-	    		init();
-	    	}, field.speed)
+	    	var timerId = setInterval(function(){
+	    		
+		    	if (snake.coordX < field.width){
+		    		init();
+		    		snake.coordX +=1;
+		    		
+		    	} else {
+		    		alert("you lose");
+		    		clearInterval(timerId);
+		    	}
+
+		    	tail();
+		    }, field.speed)
 	    }
 
-	    movement();
+
 
   </script> 
 </head> 
