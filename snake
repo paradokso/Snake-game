@@ -33,60 +33,100 @@
 
 
 		var snake = {
-			size : 1,
+			size : 3,
 			color : 'red',
 			coordX: 4,
-			coordY: 5
+			coordY: 5,
+			direction : 'E',  // East, West, North, South
+			body: []
 		};
 
 
 	    function genDivs(v){ 
-	      var e = document.body; // whatever you want to append the rows to: 
-	      for(var i = 0; i < v; i++){ 
-	        var row = document.createElement("div"); 
-	        row.className = "row"; 
-	        for(var x = 1; x <= v; x++){ 
-	            var cell = document.createElement("div"); 
-	            cell.className = "gridsquare"; 
-	            row.appendChild(cell); 
-	        } 
-	        e.appendChild(row); 
-	      } 
-	    	 
-	    	movement();
+	    	var e = document.getElementById('field'); // whatever you want to append the rows to: 
+	    	if (!e.children[0]){
+		        for(var i = 0; i < v; i++){ 
+		        	var row = document.createElement("div"); 
+		        	row.className = "row"; 
+		        	for(var x = 1; x <= v; x++){ 
+		        	    var cell = document.createElement("div"); 
+		        	    cell.className = "gridsquare"; 
+		        	    row.appendChild(cell); 
+		        	} 
+		        e.appendChild(row); 
+		      } 
+		      movement();
+	  		}
+	    	
+
 	    };
 
-	     var init = function(){
+	    var init = function(){
 	    	 var y = document.getElementsByClassName('row');
 	    	 var body = y[snake.coordY].children[snake.coordX];
 	    	 body.className += ' snake'; 
+	    	 snake.body.push(body);
+	    	 if (snake.body.length > snake.size){
+	    	 	snake.body[0].className = "gridsquare",
+	    	 	snake.body.shift()
+	    	 }
+	    	  
 	    }; 
  
-	    var tail = function(){
-	    	var curLen = document.getElementsByClassName('snake').length;
-	    	if (curLen > snake.size){
-	    		document.getElementsByClassName('snake')[0].className = 'gridsquare';
-	    	}
-	    };
-
-
-
-
-
 	    var movement = function(){
 	    	var timerId = setInterval(function(){
-	    		
-		    	if (snake.coordX < field.width){
-		    		init();
-		    		snake.coordX +=1;
-		    		
-		    	} else {
-		    		alert("you lose");
-		    		clearInterval(timerId);
-		    	}
+ 
+	 	    	if (snake.coordX < field.width-1 && snake.coordY < field.height-1 && snake.coordX > 0 && snake.coordY > 0){
+	 	    		 
+	 	    		switch (snake.direction){
+	 	    			case "W":
+	 	    				snake.coordX -=1
+	 	    				snake.coordY+=0
+	 	    				 
+	 	    				break;
+	 	    			case "N":
+	 	    				snake.coordX+=0
+	 	    				snake.coordY-=1
+	 	    				break;
+	 	    			case "E":
+	 	    				snake.coordX+=1
+	 	    				snake.coordY+=0
+	 	    				break;
+	 	    			case "S":
+	 	    				snake.coordX+=0
+	 	    				snake.coordY+=1
+	 	    				break;	 	    					 	    				
+	 	    		}
+	 	    		
+			    	init();
+			    } else {
+			    	alert("you lose");
+			    	clearInterval(timerId);
+			    }
 
-		    	tail();
-		    }, field.speed)
+			    	  
+		    }, field.speed);
+
+		    var direction = function(){
+				document.onkeydown= function(key){ 
+					switch(key.keyCode) {
+					    case 37:
+					        snake.direction = 'W'
+					        break;
+					    case 38:
+					        snake.direction = 'N'
+					        break;
+					    case 39:
+					        snake.direction = 'E'
+					        break;
+					    case 40:
+					        snake.direction = 'S'
+					        break;					        					
+					} 
+				};		    	
+		    }
+
+		direction();
 	    }
 
 
@@ -95,34 +135,7 @@
 </head> 
 <body> 
     <input type="button" onclick="genDivs(field.width)" value="create field"> 
+    <div id = "field"></div>
      
 </body> 
 </html> 
-
-<!--
-
-/*
-	<script type="text/javascript">
-		var field = {
-			width : 20,
-			height : 20,
-			holder : "",
-		};
-
-		var render = function (){
-			for (var i = 0; i < field.width; i++){
-				var block = document.createElement("div");
-				var node = document.createTextNode(field.holder);
-				block.appendChild(node)                     // Append the text to <div>
-				var cell = document.getElementById("container")      // Get the parent element to insert a new node
-				cell.insertBefore(block, cell.childNodes[0]); 
-			}
-		};
-		render();
-	</script>
-</body>
-</html>
-
-*/
-
--->
