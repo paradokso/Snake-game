@@ -196,17 +196,6 @@
 		}
 } 
 
-/*
-
- 				for (i = 0; i < obstacles.position.length; i++){
- 					if (snake.body[snake.body.length-1] != document.getElementById('field').children[i[1]].children[i[0]]){
- 						return true;
- 					}
- 				}
-
- */
-
-
  	var speedEstimat = function(initialSpeed){
  		var curSpeed = initialSpeed - snake.body.length*30;
  		if (curSpeed < field.maxSpeed){
