@@ -3,133 +3,246 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<title></title>
 	<style type="text/css">
-		#container{
+		#field{
 			background-color: grey;
-			
+			width: 525px;
+			margin: 25px auto 0;
 		}
+
+		input{
+			display: block;
+			margin: auto;
+		}
+
 		.snake{
-			background-color: red;
+			background-color: #154e24;
+			border-radius: 15px;
+			border: 1px solid #D0F0EB;
 		}
+
+		.head{background-color: red}
+
 		.row{
-			width: 440px;	
+			width: 100%;	
 		}
 		.gridsquare {
 			width:20px;
 			height: 20px;
-			border: 1px solid black;
+			border: 1px solid #D0F0EB;
 			display: inline-block;
+			margin-left: -1px;
+			margin-bottom: -1px;
+		}
+
+		.wall{
+			background: yellow url(snake/fire.jpg) 0 0 no-repeat;
+			background-size: 100%;
+		}
+
+		.bonus{
+			background-color: yellow;
+			
+			background: yellow url(snake/apple1.jpg) 0 0 no-repeat;
+			background-size: 100%;
 		}
 	</style>
 
 
   <script language="javascript"> 
 
-		var field = {
-			width : 20,
-			height : 20,
-			holder : "",
-			speed: 1000
-		};
+	var field = {
+		width : 25,
+		height : 25,
+		holder : "",
+		speed: 500,
+		maxSpeed: 50
+	};
 
 
-		var snake = {
-			size : 3,
-			color : 'red',
-			coordX: 4,
-			coordY: 5,
-			direction : 'E',  // East, West, North, South
-			body: []
-		};
+	var snake = {
+		size : 10,
+		color : 'red',
+		coordX: 1,
+		coordY: 0,
+		direction : 'E',  // East, West, North, South
+		body: []
+	};
 
+	var obstacles = {
+		position : []
+	}
 
-	    function genDivs(v){ 
-	    	var e = document.getElementById('field'); // whatever you want to append the rows to: 
-	    	if (!e.children[0]){
-		        for(var i = 0; i < v; i++){ 
-		        	var row = document.createElement("div"); 
-		        	row.className = "row"; 
-		        	for(var x = 1; x <= v; x++){ 
-		        	    var cell = document.createElement("div"); 
-		        	    cell.className = "gridsquare"; 
-		        	    row.appendChild(cell); 
-		        	} 
-		        e.appendChild(row); 
-		      } 
-		      movement();
-	  		}
-	    	
+	var bonus = {
+		position: []
+	}
 
-	    };
+    function genDivs(v){ 
+    	var e = document.getElementById('field'); // whatever you want to append the rows to: 
+    	if (!e.children[0]){
+	        for(var i = 0; i < v; i++){ 
+	        	var row = document.createElement("div"); 
+	        	row.className = "row"; 
+	        	for(var x = 1; x <= v; x++){ 
+	        	    var cell = document.createElement("div"); 
+	        	    cell.className = "gridsquare"; 
+	        	    row.appendChild(cell); 
+	        	} 
+	        e.appendChild(row); 
+	      	} 
+	      	 
+	     	movement();
+	     	addObj(document.getElementById('field'));
+	     	
+  		}
+    };
 
-	    var init = function(){
-	    	 var y = document.getElementsByClassName('row');
-	    	 var body = y[snake.coordY].children[snake.coordX];
-	    	 body.className += ' snake'; 
-	    	 snake.body.push(body);
-	    	 if (snake.body.length > snake.size){
-	    	 	snake.body[0].className = "gridsquare",
-	    	 	snake.body.shift()
-	    	 }
-	    	  
-	    }; 
+    var init = function(){
+    	 var y = document.getElementsByClassName('row');
+    	 var head = y[snake.coordY].children[snake.coordX];
+    	 head.className += ' snake'; 
+    	 snake.body.push(head);
+    	 if (snake.body.length > snake.size){
+    	 	snake.body[0].className = "gridsquare",
+    	 	snake.body.shift()
+    	 }
+ 		yamiYami();
+    	  
+    }; 
  
-	    var movement = function(){
-	    	var timerId = setInterval(function(){
- 
-	 	    	if (snake.coordX < field.width-1 && snake.coordY < field.height-1 && snake.coordX > 0 && snake.coordY > 0){
-	 	    		 
-	 	    		switch (snake.direction){
-	 	    			case "W":
-	 	    				snake.coordX -=1
-	 	    				snake.coordY+=0
-	 	    				 
-	 	    				break;
-	 	    			case "N":
-	 	    				snake.coordX+=0
-	 	    				snake.coordY-=1
-	 	    				break;
-	 	    			case "E":
-	 	    				snake.coordX+=1
-	 	    				snake.coordY+=0
-	 	    				break;
-	 	    			case "S":
-	 	    				snake.coordX+=0
-	 	    				snake.coordY+=1
-	 	    				break;	 	    					 	    				
-	 	    		}
-	 	    		
+    var movement = function(){
+    	direction();
+ 	    	if (conditionsEnd()){
+ 	    		switch (snake.direction){
+ 	    			case "W":
+ 	    				snake.coordX -=1
+ 	    				snake.coordY+=0
+ 	    				 
+ 	    				break;
+ 	    			case "N":
+ 	    				snake.coordX+=0
+ 	    				snake.coordY-=1
+ 	    				break;
+ 	    			case "E":
+ 	    				snake.coordX+=1
+ 	    				snake.coordY+=0
+ 	    				break;
+ 	    			case "S":
+ 	    				snake.coordX+=0
+ 	    				snake.coordY+=1
+ 	    				break;	 	    					 	    				
+ 	    		}
+	 	    	try{	
+
 			    	init();
-			    } else {
+			    	addObj(document.getElementById('field'));
+			    	
+			    	 
+			    }  catch (e if e instanceof TypeError) {
 			    	alert("you lose");
-			    	clearInterval(timerId);
+			    	return false
 			    }
 
-			    	  
-		    }, field.speed);
-
-		    var direction = function(){
-				document.onkeydown= function(key){ 
-					switch(key.keyCode) {
-					    case 37:
-					        snake.direction = 'W'
-					        break;
-					    case 38:
-					        snake.direction = 'N'
-					        break;
-					    case 39:
-					        snake.direction = 'E'
-					        break;
-					    case 40:
-					        snake.direction = 'S'
-					        break;					        					
-					} 
-				};		    	
-		    }
-
-		direction();
-	    }
+		    } else {
+		    	alert("you lose");
+		    	return false
+		    }  	  
+    	var timerId = setTimeout(movement, speedEstimat(field.speed));
+     
 
 
+	
+    }
+
+    var direction = function(){
+		document.onkeydown= function(key){ 
+			switch(key.keyCode) {
+			    case 37:
+			        snake.direction = 'W'
+			        break;
+			    case 38:
+			        snake.direction = 'N'
+			        break;
+			    case 39:
+			        snake.direction = 'E'
+			        break;
+			    case 40:
+			        snake.direction = 'S'
+			        break;					        					
+			} 
+		}		    	
+    }
+
+ 	var conditionsEnd = function(){
+ 	 		console.log(snake.body[snake.body.length-1])
+ 			if (snake.body.indexOf(snake.body[snake.body.length-1]) == snake.body.length-1){	// if head did not touch 
+ 				for (i = 0; i < obstacles.position.length; i++){									// body
+						if ( snake.body[snake.body.length-1] == document.getElementById('field').children[obstacles.position[i][1]].children[obstacles.position[i][0]]){
+							return false
+						} else{
+							return true
+						}
+	 			}
+ 				return true	 															
+ 			}
+ 	}
+
+ 	var yamiYami = function(){
+		for (i = 0; i < bonus.position.length; i++){									// body
+				if ( snake.body[snake.body.length-1] == document.getElementById('field').children[bonus.
+		position[i][1]].children[bonus.position[i][0]]){
+					document.getElementById('field').children[bonus.position[i][1]].children[bonus.position[i][0]].className="gridsquare snake";
+					snake.size++;
+				}  
+		}
+} 
+
+/*
+
+ 				for (i = 0; i < obstacles.position.length; i++){
+ 					if (snake.body[snake.body.length-1] != document.getElementById('field').children[i[1]].children[i[0]]){
+ 						return true;
+ 					}
+ 				}
+
+ */
+
+
+ 	var speedEstimat = function(initialSpeed){
+ 		var curSpeed = initialSpeed - snake.body.length*30;
+ 		if (curSpeed < field.maxSpeed){
+			curSpeed = field.maxSpeed;
+		}
+		return curSpeed;
+ 	}
+
+ 	var trigger = Math.round(Math.random() * (9 - 0 + 1)) + 0; 		// some radnom start seed
+
+ 	var addObj = function(e) {setTimeout(function(){
+ 		trigger++;
+ 		if (trigger%8 == 0){
+ 			var randX = Math.floor(Math.random() * (field.width));
+	 		var randY = Math.floor(Math.random() * (field.width));
+ 			if (Math.round(Math.random())==0){				// generate wall
+	 			obstacles.position.push([randX, randY]);	 
+	 			e.children[randY].children[randX].className+=" wall"								
+	 			if (obstacles.position.length >= 5){
+		 			var xFirst = obstacles.position[0][0];
+		 			var yFirst = obstacles.position[0][1];	 		 
+		 			e.children[yFirst].children[xFirst].className="gridsquare"
+	 				obstacles.position.shift()
+	 			}  
+ 			} else { 											// generate bonus
+ 				if (bonus.position.length >= 2){
+		 			var xBonusF = bonus.position[0][0];
+		 			var yBonusF = bonus.position[0][1];	 		 
+		 			e.children[yBonusF].children[xBonusF].className="gridsquare"
+	 				bonus.position.shift()
+	 			}  
+	 			bonus.position.push([randX, randY]); 		 
+	 			e.children[randY].children[randX].className+=" bonus"
+ 			}
+ 		}
+ 	}, 1000)};
 
   </script> 
 </head> 
